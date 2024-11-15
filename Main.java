@@ -8,7 +8,7 @@ public class Main {
         Sensor sensor2=new Sensor("Water pressure =>",0,65.36,1000,"Bar");
         Sensor sensor3=new Sensor("Water usage =>",0,65336,0,"liter");
         Sensor sensor4=new Sensor("Water usage(big) =>",0,6533.6,10,"m^3");
-        Device device=new Device("ivan","tcp://localhost:1883");
+        Device device=new Device("tempoerature","tcp://localhost:1883");
         device.addSensor(sensor1);
         device.addSensor(sensor2);
         device.addSensor(sensor3);
