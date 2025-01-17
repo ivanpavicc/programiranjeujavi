@@ -21,4 +21,6 @@ public class Book {
     private String author;
     private String genre;
     private Integer publicationYear;
+    @ManyToMany(mappedBy = "books")
+    private List<Reservation> reservations;
 }
