@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+
+    <script src="/static/libs/sockjs.min.js"></script>
+    <script src="/static/libs/stomp.min.js"></script>
+</head>
+<body>
+<h2>WebSocket Chat</h2>
+
+<!-- Unos za chat -->
+<div id="chatBox">
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<!-- Unos za obavijesti člana -->
+<div id="notificationBox">
+    <div id="notifications"></div>
+</div>
+
+<script>
+    var socketUrl = "/ws";  // Povezivanje s WebSocket endpointom koji je postavljen na /ws
+    var stompClient = null;
+
+    // Funkcija za uspostavljanje WebSocket veze
+    function connect(memberId) {
+        var socket = new SockJS(socketUrl);  // Povezivanje preko SockJS-a
+        stompClient = Stomp.over(socket);  // Kreiraj STOMP klijent
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            // Pretplata na poruke
+            stompClient.subscribe('/topic/messages', function (messageOutput) {
+                showMessage(messageOutput.body);
+            });
+
+            // Pretplata na obavijesti specifične za člana
+            stompClient.subscribe('/topic/notifications/' + memberId, function (notificationOutput) {
+                showNotification(notificationOutput.body); // Prikazivanje obavijesti
+            });
+        });
+    }
+
+    // Funkcija za slanje poruka
+    function sendMessage() {
+        var message = document.getElementById("messageInput").value;
+        stompClient.send("/app/chat", {}, message);  // Šaljemo poruku na server
+        document.getElementById("messageInput").value = "";  // Očistimo unos
+    }
+
+    // Funkcija za prikazivanje poruka na ekranu
+    function showMessage(message) {
+        var messagesDiv = document.getElementById("messages");
+        messagesDiv.innerHTML += "<p>" + message + "</p>";
+    }
+
+    // Funkcija za prikazivanje obavijesti na ekranu
+    function showNotification(notification) {
+        var notificationsDiv = document.getElementById("notifications");
+        notificationsDiv.innerHTML += "<p>" + notification + "</p>";
+    }
+
+    // Pozivanje funkcije za povezivanje odmah kad se stranica učita
+    window.onload = function () {
+        var memberId = 1;  // Ovdje postavi ID člana, npr. 1 (ovo možeš promijeniti ovisno o članu)
+        connect(memberId);  // Povezivanje s WebSocketom za određenog člana
+    };
+</script>
+</body>
+</html>
